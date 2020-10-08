@@ -1,109 +1,222 @@
-#!/usr/bin/python
+// Copyright (c) 2020 Fernando
+// Url: https://github.com/dlfernando/
+// License: MIT
 
-# Copyright (c) 2020 Fernando
-# Url: https://github.com/dlfernando/
-# License: MIT
+// Modified and translated to JavaScript by Merrick
 
-# DESCRIPTION:
-# This script executes 2 actions:
-# 1.) Monitors for new image posted in a instagram account (create a cronjob).
-# 2.) If found new image, a bot posts new instagram image in a discord channel.
+// DESCRIPTION:
+// This script executes 2 actions:
+// 1.) Monitors for new image posted in a instagram account (create a cronjob).
+// 2.) If found new image, a bot posts new instagram image in a discord channel.
 
-# REQUIREMENTS:
-# - Python v3
-# - Python module re, json, requests
-import re
-import json
-import sys
-import requests
-import urllib.request
-import os
+// Requiring this allows access to the environment variables of the running node process
+require('dotenv').config();
 
-# USAGE:
-# Replace INSTAGRAM_USERNAME with username account you want to monitor.
-# Replace WEBHOOK_URL with Discord account webhook url. To know how, just Google: "how to create webhook discord".
-# Replace DATABASE with any finename you want to use as temporary data for checking new photos.
+// Sets the token
+const token = process.env.BOT_TOKEN;
 
-INSTAGRAM_USERNAME = "ladygaga" # Example: ladygaga
-WEBHOOK_URL = ""                # Url to your discord webhook
-DATABASE = "database.txt"
+// Sets the prefix
+const prefix = process.env.BOT_PREFIX;
 
-def write_to_file(content,filename):
-    try:
-        f = open(filename,"w")
-        f.write(content)  
-        f.close()
-    except IOError:
-        print("Error occured trying to read the file "+filename+".")
+// Sets the version
+const version = process.env.BOT_VERSION;
 
-def read_from_file(filename):
-    try:
-        f = open(filename,"r")
-        content = f.read()
-        f.close()
-        return content
-    except IOError:
-        print("Error occured trying to read the file "+filename+".")
+// Requires the discord.js module
+const Discord = require('discord.js');
+const { Client, Intents, MessageEmbed, MessageAttachment } = require('discord.js');
 
-def get_user_fullname(html):
-    return html.json()["graphql"]["user"]["full_name"]
+// Requires the fs module
+const fs = require('fs');
 
-def get_total_photos(html):
-    return int(html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["count"])
+// Requires the path module
+const path = require('path');
 
-def get_last_publication_url(html):
-    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["shortcode"]
+// Requires the chalk module
+const chalk = require('chalk');
 
-def get_last_photo_url(html):
-    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["display_url"]
+// Creates a new Discord client
+const discordClient = new Discord.Client({ ws: { intents: Intents.NON_PRIVILEGED } });
 
-def get_last_thumb_url(html):
-    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["thumbnail_src"]
+// Logs the bot into Discord
+discordClient.login(token);
+
+const targetInstagramUsername = "USERNAME_PLACEHOLDER_HERE";
+const webhookURL = "WEBHOOK_URL_PLACEHOLDER_HERE";
+const database = "database.txt";
+
+function writeToFile(content, filename) {
+
+    let filepath = ('./' + filename);
+
+    fs.access(filepath, fs.constants.R_OK, (err) => {
+
+        if (err) {
+
+            console.error(err);
+            console.log("An error occured trying to read the file \"" + filename + "\".");
+            
+        } else {
+            
+            fs.writeFile(filepath, content, err => {
+
+                if (err) {
+
+                    console.error(err);
+                    console.log("An error occured trying to write to the file \"" + filename + "\".");
+
+                }
+
+            });
+            
+        }
+
+    });
+
+}
+
+function readFromFile(filename) {
+
+    let filepath = ('./' + filename);
+
+    fs.access(filepath, fs.constants.R_OK, (err) => {
+
+        if (err) {
+
+            console.error(err);
+            console.log("An error occured trying to read the file \"" + filename + "\".");
+            
+        } else {
+            
+            fs.readFile(filepath, 'utf8', (err, data) => {
+
+                if (err) {
+
+                    console.error(err)
+                    console.log("An error occured trying to read the file \"" + filename + "\".");
+
+                } else {
+
+                    return data;
+
+                }
+
+            });
+            
+        }
+
+    });
     
-def get_description_photo(html):
-    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["edge_media_to_caption"]["edges"][0]["node"]["text"]
+}
 
-def webhook(webhook_url,html):
-    #for all params, see https://discordapp.com/developers/docs/resources/webhook#execute-webhook
-    #for all params, see https://discordapp.com/developers/docs/resources/channel#embed-object
-    data = {}
-    data["embeds"] = []
-    embed = {}    
-    embed["color"] = 15467852
-    embed["title"] = "New pic of @"+INSTAGRAM_USERNAME+""
-    embed["url"] = "https://www.instagram.com/p/"+get_last_publication_url(html)+"/"
-    embed["description"] = get_description_photo(html)
-    #embed["image"] = {"url":get_last_thumb_url(html)} # unmark to post bigger image
-    embed["thumbnail"] = {"url":get_last_thumb_url(html)}
-    data["embeds"].append(embed)
-    result = requests.post(webhook_url, data=json.dumps(data), headers={"Content-Type": "application/json"})
-    try:
-        result.raise_for_status()
-    except requests.exceptions.HTTPError as err:
-        print(err)
-    else:
-        print("Image successfully posted in Discod, code {}.".format(result.status_code))
+function getUserFullName(html) {
 
-def get_instagram_html(INSTAGRAM_USERNAME):
-    html = requests.get("https://www.instagram.com/" + INSTAGRAM_USERNAME + "/?__a=1")
-    return html
+    return html.json()["graphql"]["user"]["full_name"];
+
+}
+
+function  getTotalPhotos(html) {
+
+    return int(html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["count"]);
+
+}
+
+function getLastPublicationURL(html) {
+
+    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["shortcode"];
+
+}
+
+function getLastPhotoURL(html) {
+
+    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["display_url"];
+
+}
+
+function getLastThumbURL(html) {
+
+    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["thumbnail_src"];
+
+}
+    
+function getDescriptionPhoto(html) {
+
+    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["edge_media_to_caption"]["edges"][0]["node"]["text"];
+
+}
+
+function webhook(webhook_url, html) {
+
+    // for all params, see https://discordapp.com/developers/docs/resources/webhook#execute-webhook
+    // for all params, see https://discordapp.com/developers/docs/resources/channel#embed-object
+
+    data = {};
+    data["embeds"] = [];
+    embed = {};
+    embed["color"] = 15467852;
+    embed["title"] = ("New pic of @" + targetInstagramUsername);
+    embed["url"] = ("https://www.instagram.com/p/" + get_last_publication_url(html) + "/");
+    embed["description"] = get_description_photo(html);
+    // embed["image"] = {"url":get_last_thumb_url(html)}; // uncomment to send a bigger image
+    embed["thumbnail"] = {"url":get_last_thumb_url(html)};
+    data["embeds"].append(embed);
+    result = requests.post(webhook_url, data=json.dumps(data), headers={"Content-Type": "application/json"});
+    
+    try {
+
+        result.raise_for_status();
+
+    } catch (err) {
+
+        // except requests.exceptions.HTTPError as err:
+        console.error(err);
+        console.log("An error occured.");
+        return;
+
+    }
+    
+    print("Image successfully sent to Discod, code {}.".format(result.status_code))
+
+}
+
+function getInstagramHTML(targetInstagramUsername) {
+
+    html = requests.get("https://www.instagram.com/" + targetInstagramUsername + "/?__a=1");
+    return html;
+
+}
+
+function main() {
+    
+    try {
+
+        html = get_instagram_html(targetInstagramUsername);
+
+        if (readFromFile(database)==get_last_publication_url(html)) {
+
+            console.log("No new image(s) to send to Discord.");
+
+        } else {
+        
+            writeToFile(get_last_publication_url(html), database);
+            console.log("New image(s) to send to Discord.");
+            webhook(webhookURL, get_instagram_html(targetInstagramUsername));
+        
+        }
+
+    } catch (err) {
+
+        console.error(err);
+        console.log("An error occured.");
+
+    }
+
+}
 
 
-def main():
-    try:
-        html = get_instagram_html(INSTAGRAM_USERNAME)
-        if(read_from_file(DATABASE)==get_last_publication_url(html)):
-            print("Not new image to post in discord.")
-        else:
-            write_to_file(get_last_publication_url(html),DATABASE)
-            print("New image to post in discord.")
-            webhook(WEBHOOK_URL, get_instagram_html(INSTAGRAM_USERNAME))
-    except:
-        print("An error occured.")
+if (__name__ == "__main__") {
 
+    main();
 
-if __name__ == "__main__":
-
-    main()
+}
 
 
