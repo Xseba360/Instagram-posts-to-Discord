@@ -21,10 +21,6 @@ const prefix = process.env.BOT_PREFIX;
 // Sets the version
 const version = process.env.BOT_VERSION;
 
-// Requires the discord.js module
-const Discord = require('discord.js');
-const { Client, Intents, MessageEmbed, MessageAttachment } = require('discord.js');
-
 // Requires the fs module
 const fs = require('fs');
 
@@ -36,9 +32,6 @@ const chalk = require('chalk');
 
 // Creates a new Discord client
 const discordClient = new Discord.Client({ ws: { intents: Intents.NON_PRIVILEGED } });
-
-// Logs the bot into Discord
-discordClient.login(token);
 
 const targetInstagramUsername = "USERNAME_PLACEHOLDER_HERE";
 const webhookURL = "WEBHOOK_URL_PLACEHOLDER_HERE";
