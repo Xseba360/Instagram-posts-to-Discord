@@ -33,7 +33,7 @@ const chalk = require('chalk');
 // Creates a new Discord client
 const discordClient = new Discord.Client({ ws: { intents: Intents.NON_PRIVILEGED } });
 
-const targetInstagramUsername = "USERNAME_PLACEHOLDER_HERE";
+const targetInstagramUsername = "mattiec.photography";
 const webhookURL = "WEBHOOK_URL_PLACEHOLDER_HERE";
 const database = "database.txt";
 
@@ -147,10 +147,10 @@ function webhook(webhook_url, html) {
     embed = {};
     embed["color"] = 15467852;
     embed["title"] = ("New pic of @" + targetInstagramUsername);
-    embed["url"] = ("https://www.instagram.com/p/" + get_last_publication_url(html) + "/");
-    embed["description"] = get_description_photo(html);
+    embed["url"] = ("https://www.instagram.com/p/" + getLastPublicationURL(html) + "/");
+    embed["description"] = getDescriptionPhoto(html);
     // embed["image"] = {"url":get_last_thumb_url(html)}; // uncomment to send a bigger image
-    embed["thumbnail"] = {"url":get_last_thumb_url(html)};
+    embed["thumbnail"] = {"url":getLastThumbURL(html)};
     data["embeds"].append(embed);
     result = requests.post(webhook_url, data=json.dumps(data), headers={"Content-Type": "application/json"});
     
@@ -182,17 +182,17 @@ function main() {
     
     try {
 
-        html = get_instagram_html(targetInstagramUsername);
+        html = getInstagramHTML(targetInstagramUsername);
 
-        if (readFromFile(database)==get_last_publication_url(html)) {
+        if (readFromFile(database) == getLastPublicationURL(html)) {
 
             console.log("No new image(s) to send to Discord.");
 
         } else {
         
-            writeToFile(get_last_publication_url(html), database);
+            writeToFile(getLastPublicationURL(html), database);
             console.log("New image(s) to send to Discord.");
-            webhook(webhookURL, get_instagram_html(targetInstagramUsername));
+            webhook(webhookURL, getInstagramHTML(targetInstagramUsername));
         
         }
 
