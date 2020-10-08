@@ -30,9 +30,6 @@ const path = require('path');
 // Requires the chalk module
 const chalk = require('chalk');
 
-// Creates a new Discord client
-const discordClient = new Discord.Client({ ws: { intents: Intents.NON_PRIVILEGED } });
-
 const targetInstagramUsername = "mattiec.photography";
 const webhookURL = "WEBHOOK_URL_PLACEHOLDER_HERE";
 const database = "database.txt";
@@ -103,37 +100,37 @@ function readFromFile(filename) {
 
 function getUserFullName(html) {
 
-    return html.json()["graphql"]["user"]["full_name"];
+    return html.graphql.user.full_name;
 
 }
 
 function  getTotalPhotos(html) {
 
-    return int(html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["count"]);
+    return Math.round(html.graphql.user.edge_owner_to_timeline_media.count);
 
 }
 
 function getLastPublicationURL(html) {
 
-    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["shortcode"];
+    return html.graphql.user.edge_owner_to_timeline_media.edges[0].node.shortcode;
 
 }
 
 function getLastPhotoURL(html) {
 
-    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["display_url"];
+    return html.graphql.user.dge_owner_to_timeline_media.edges[0].node.display_url;
 
 }
 
 function getLastThumbURL(html) {
 
-    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["thumbnail_src"];
+    return html.graphql.user.edge_owner_to_timeline_media.edges[0].node.thumbnail_src;
 
 }
     
 function getDescriptionPhoto(html) {
 
-    return html.json()["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["edge_media_to_caption"]["edges"][0]["node"]["text"];
+    return html.graphql.user.edge_owner_to_timeline_media.edges[0].node.edge_media_to_caption.edges[0].node.text;
 
 }
 
@@ -154,6 +151,8 @@ function webhook(webhook_url, html) {
     data["embeds"].append(embed);
     result = requests.post(webhook_url, data=json.dumps(data), headers={"Content-Type": "application/json"});
     
+    /*
+
     try {
 
         result.raise_for_status();
@@ -167,7 +166,9 @@ function webhook(webhook_url, html) {
 
     }
     
-    print("Image successfully sent to Discod, code {}.".format(result.status_code))
+    console.log("Image successfully sent to Discod, code {}.".format(result.status_code))
+
+    */
 
 }
 
@@ -211,5 +212,3 @@ if (__name__ == "__main__") {
     main();
 
 }
-
-
