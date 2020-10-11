@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Merrick919/Instagram-to-Discord-discordjs.git"
+    "url": "git+https://github.com/Merrick919/Instagram-to-Discord-js.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Merrick919/Instagram-to-Discord-discordjs/issues"
+    "url": "https://github.com/Merrick919/Instagram-to-Discord-js/issues"
   },
-  "homepage": "https://github.com/Merrick919/Instagram-to-Discord-discordjs#readme"
+  "homepage": "https://github.com/Merrick919/Instagram-to-Discord-js#readme"
 }
