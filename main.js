@@ -2,7 +2,7 @@
 // Url: https://github.com/dlfernando/
 // License: MIT
 
-// Modified and translated to JavaScript by Merrick919
+// Modified and translated from Python to JavaScript by Merrick919
 
 // Variables you have to change are:
 // 1. targetInstagramUsername
