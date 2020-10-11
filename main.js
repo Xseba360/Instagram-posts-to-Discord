@@ -172,6 +172,7 @@ function webhook(jsonData) {
         embed["thumbnail"] = {"url":getLastThumbURL(jsonData)};
         data["embeds"].append(embed);
 
+        // Use the node-fetch module to interact with the Discord webhook.
         fetch(webhookURL, {
 
             method: "post",
@@ -203,12 +204,20 @@ async function main() {
             let timeNow = new Date();
             let timeNowISO = timeNow.toISOString();
 
+            // This compares the recorded old publication URL in the database file
+            // with the newest retrieved publication URL.
+
+            // If the recorded old publication URL is the same as the newest retrieved publication URL,
+            // it most likely means that there are no new images/posts.
             if (readFromFile(database) == getLastPublicationURL(jsonData)) {
 
                 console.log(chalk.blue(timeNowISO) + " No new image(s) found.");
-                
+            
+            // If the recorded old publication URL is not the same as the newest retrieved publication URL,
+            // it most likely means that there is/are (a) new image(s)/post(s).
             } else {
-                        
+                
+                // Record the new publication URL to the database file.
                 writeToFile(getLastPublicationURL(jsonData), database);
                 console.log(chalk.blue(timeNowISO) + " New image(s) found.");
                 webhook(jsonData);
@@ -217,9 +226,10 @@ async function main() {
 
         }
 
+        // Use the node-fetch module to retrieve the data.
         const jsonData = await fetch(targetInstagramURL).then(res => res.json());
 
-        // Wait 20 seconds so there is a bigger total delay between checks for new images/posts (total: 20 seconds) and so the content can be retrieved. 
+        // Wait 20 seconds so there is a bigger total delay between checks for new images/posts (total: 20 seconds) and so the data can be retrieved. 
         setTimeout(function() { test(jsonData); }, 20000);
 
     } catch (err) {
