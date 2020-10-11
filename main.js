@@ -41,7 +41,7 @@ const database = "database.txt";
 
 function writeToFile(content, filename) {
 
-    let filepath = path.join(".", filename);
+    let filepath = (".\\" + filename);
 
     fs.access(filepath, fs.constants.R_OK, (err) => {
 
