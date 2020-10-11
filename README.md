@@ -26,3 +26,6 @@ For `webhookID` and `webhookURL`, first create a webhook in Discord, then copy t
 The first part after "https://discordapp.com/api/webhooks/" is the webhook ID (some numbers).\
 The second part after the webhook ID is the webhook token.\
 You can just replace the `targetInstagramURL` and `webhookURL` links directly if you want.
+
+You can run this script just by navigating to the project directory with command prompt then running the command `npm start` or `node main.js`.\
+I recommend using [nodemon](https://www.npmjs.com/package/nodemon). You can run the command `nodemon main.js` if you have it.
