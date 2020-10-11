@@ -1,6 +1,6 @@
 # Instagram to Discord (node.js)
-By [Fernando](https://github.com/dlfernando/)
-Modified and translated to JavaScript by [Merrick919](https://github.com/Merrick919)
+By [Fernando](https://github.com/dlfernando/)\
+Modified and translated to JavaScript by [Merrick919](https://github.com/Merrick919)\
 Original repo: [https://github.com/dlfernando/Instagram-to-discord](https://github.com/dlfernando/Instagram-to-discord)
 
 This script monitors an Instagram account and send images to a Discord channel by a webhook when new images/posts are found.
