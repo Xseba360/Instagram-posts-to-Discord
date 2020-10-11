@@ -21,8 +21,8 @@ Variables you have to change are:
 2. `webhookID`
 3. `webhookURL`
 
-For `targetInstagramUsername`, it's simply the username of the account you want to monitor.
-For `webhookID` and `webhookURL`, first create a webhook in Discord, then copy the webhook URL.
-The first part after "https://discordapp.com/api/webhooks/" is the webhook ID (some numbers).
-The second part after the webhook ID is the webhook token.
+For `targetInstagramUsername`, it's simply the username of the account you want to monitor.\
+For `webhookID` and `webhookURL`, first create a webhook in Discord, then copy the webhook URL.\
+The first part after "https://discordapp.com/api/webhooks/" is the webhook ID (some numbers).\
+The second part after the webhook ID is the webhook token.\
 You can just replace the `targetInstagramURL` and `webhookURL` links directly if you want.

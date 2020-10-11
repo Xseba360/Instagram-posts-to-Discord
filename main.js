@@ -4,12 +4,6 @@
 
 // Modified and translated to JavaScript by Merrick919
 
-// DESCRIPTION:
-//
-// This script executes 2 actions:
-// 1. The script checks for a new image posted in an Instagram account every 20 seconds.
-// 2. If a new image is found, the script posts the new Instagram image to a Discord channel by a webhook.
-//
 // Variables you have to change are:
 // 1. targetInstagramUsername
 // 2. webhookID
