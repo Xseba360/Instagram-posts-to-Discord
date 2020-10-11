@@ -1,0 +1,26 @@
+{
+  "name": "Instagram-to-Discord-js",
+  "version": "1.0.0",
+  "description": "Monitors an Instagram account and send images to a Discord channel by a webhook when new iamges/posts are found.",
+  "main": "main.js",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Merrick919/Instagram-to-Discord-discordjs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Merrick919/Instagram-to-Discord-discordjs/issues"
+  },
+  "homepage": "https://github.com/Merrick919/Instagram-to-Discord-discordjs#readme"
+}

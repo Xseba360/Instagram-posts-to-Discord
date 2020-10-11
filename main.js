@@ -2,48 +2,56 @@
 // Url: https://github.com/dlfernando/
 // License: MIT
 
-// Modified and translated to JavaScript by Merrick
+// Modified and translated to JavaScript by Merrick919
 
 // DESCRIPTION:
+//
 // This script executes 2 actions:
-// 1.) Monitors for new image posted in a instagram account (create a cronjob).
-// 2.) If found new image, a bot posts new instagram image in a discord channel.
+// 1. The script checks for a new image posted in an Instagram account every 20 seconds.
+// 2. If a new image is found, the script posts the new Instagram image to a Discord channel by a webhook.
+//
+// Variables you have to change are:
+// 1. targetInstagramUsername
+// 2. webhookID
+// 3. webhookURL
+//
+// For targetInstagramUsername, it's simply the username of the account you want to monitor.
+// For webhookID and webhookURL, first create a webhook in Discord, then copy the webhook URL.
+// The first part after "https://discordapp.com/api/webhooks/" is the webhook ID (some numbers).
+// The second part after the webhook ID is the webhook token.
+// You can just replace the targetInstagramURL and webhookURL links directly if you want.
 
-// Requiring this allows access to the environment variables of the running node process
-require('dotenv').config();
+// Requires the node-fetch module.
+const fetch = require("node-fetch")
 
-// Sets the token
-const token = process.env.BOT_TOKEN;
+// Requires the fs module.
+const fs = require("fs");
 
-// Sets the prefix
-const prefix = process.env.BOT_PREFIX;
+// Requires the chalk module.
+const chalk = require("chalk");
 
-// Sets the version
-const version = process.env.BOT_VERSION;
+const targetInstagramUsername = "TARGET_INSTAGRAM_USERNAME_HERE";
+const targetInstagramURL = ("https://www.instagram.com/" + targetInstagramUsername + "/?__a=1");
 
-// Requires the fs module
-const fs = require('fs');
+const webhookID = "WEBHOOK_ID_HERE";
+const webhookToken = "WEBHOOK_TOKEN_HERE";
+const webhookURL = ("https://discordapp.com/api/webhooks/" + webhookID + "/" + webhookToken);
 
-// Requires the path module
-const path = require('path');
-
-// Requires the chalk module
-const chalk = require('chalk');
-
-const targetInstagramUsername = "mattiec.photography";
-const webhookURL = "WEBHOOK_URL_PLACEHOLDER_HERE";
 const database = "database.txt";
 
 function writeToFile(content, filename) {
 
-    let filepath = ('./' + filename);
+    let filepath = path.join(".", filename);
 
     fs.access(filepath, fs.constants.R_OK, (err) => {
 
         if (err) {
 
+            let timeNow = new Date();
+            let timeNowISO = timeNow.toISOString();
+
             console.error(err);
-            console.log("An error occured trying to read the file \"" + filename + "\".");
+            console.log(chalk.blue(timeNowISO) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
             
         } else {
             
@@ -51,8 +59,11 @@ function writeToFile(content, filename) {
 
                 if (err) {
 
+                    let timeNow = new Date();
+                    let timeNowISO = timeNow.toISOString();
+
                     console.error(err);
-                    console.log("An error occured trying to write to the file \"" + filename + "\".");
+                    console.log(chalk.blue(timeNowISO) + chalk.red("An error occured trying to write to the file \"" + filename + "\"."));
 
                 }
 
@@ -66,23 +77,29 @@ function writeToFile(content, filename) {
 
 function readFromFile(filename) {
 
-    let filepath = ('./' + filename);
+    let filepath = (".\\" + filename);
 
     fs.access(filepath, fs.constants.R_OK, (err) => {
 
         if (err) {
 
+            let timeNow = new Date();
+            let timeNowISO = timeNow.toISOString();
+
             console.error(err);
-            console.log("An error occured trying to read the file \"" + filename + "\".");
+            console.log(chalk.blue(timeNowISO) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
             
         } else {
             
-            fs.readFile(filepath, 'utf8', (err, data) => {
+            fs.readFile(filepath, "utf8", (err, data) => {
 
                 if (err) {
 
+                    let timeNow = new Date();
+                    let timeNowISO = timeNow.toISOString();
+
                     console.error(err)
-                    console.log("An error occured trying to read the file \"" + filename + "\".");
+                    console.log(chalk.blue(timeNowISO) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
 
                 } else {
 
@@ -98,117 +115,118 @@ function readFromFile(filename) {
     
 }
 
-function getUserFullName(html) {
+function getUserFullName(jsonData) {
 
-    return html.graphql.user.full_name;
-
-}
-
-function  getTotalPhotos(html) {
-
-    return Math.round(html.graphql.user.edge_owner_to_timeline_media.count);
+    return jsonData["graphql"]["user"]["full_name"];
 
 }
 
-function getLastPublicationURL(html) {
+function  getTotalPhotos(jsonData) {
 
-    return html.graphql.user.edge_owner_to_timeline_media.edges[0].node.shortcode;
-
-}
-
-function getLastPhotoURL(html) {
-
-    return html.graphql.user.dge_owner_to_timeline_media.edges[0].node.display_url;
+    return Math.round(jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["count"]);
 
 }
 
-function getLastThumbURL(html) {
+function getLastPublicationURL(jsonData) {
 
-    return html.graphql.user.edge_owner_to_timeline_media.edges[0].node.thumbnail_src;
+    return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node.shortcode"];
+
+}
+
+function getLastPhotoURL(jsonData) {
+
+    return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["display_url"];
+
+}
+
+function getLastThumbURL(jsonData) {
+
+    return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["thumbnail_src"];
 
 }
     
-function getDescriptionPhoto(html) {
+function getDescriptionPhoto(jsonData) {
 
-    return html.graphql.user.edge_owner_to_timeline_media.edges[0].node.edge_media_to_caption.edges[0].node.text;
+    return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["edge_media_to_caption"]["edges"][0]["node"]["text"];
 
 }
 
-function webhook(webhook_url, html) {
-
-    // for all params, see https://discordapp.com/developers/docs/resources/webhook#execute-webhook
-    // for all params, see https://discordapp.com/developers/docs/resources/channel#embed-object
-
-    data = {};
-    data["embeds"] = [];
-    embed = {};
-    embed["color"] = 15467852;
-    embed["title"] = ("New pic of @" + targetInstagramUsername);
-    embed["url"] = ("https://www.instagram.com/p/" + getLastPublicationURL(html) + "/");
-    embed["description"] = getDescriptionPhoto(html);
-    // embed["image"] = {"url":get_last_thumb_url(html)}; // uncomment to send a bigger image
-    embed["thumbnail"] = {"url":getLastThumbURL(html)};
-    data["embeds"].append(embed);
-    result = requests.post(webhook_url, data=json.dumps(data), headers={"Content-Type": "application/json"});
-    
-    /*
+function webhook(jsonData) {
 
     try {
 
-        result.raise_for_status();
+        // For all parameters, see https://discordapp.com/developers/docs/resources/webhook#execute-webhook.
+        // For all parameters, see https://discordapp.com/developers/docs/resources/channel#embed-object.
+
+        data = {};
+        data["embeds"] = [];
+        embed = {};
+        embed["color"] = 15467852;
+        embed["title"] = ("New pic of @" + targetInstagramUsername);
+        embed["url"] = ("https://www.instagram.com/p/" + getLastPublicationURL(jsonData) + "/");
+        embed["description"] = getDescriptionPhoto(jsonData);
+        // embed["image"] = {"url":get_last_thumb_url(jsonData)}; // Uncomment this to send a bigger image to Discord.
+        embed["thumbnail"] = {"url":getLastThumbURL(jsonData)};
+        data["embeds"].append(embed);
+
+        fetch(webhookURL, {
+
+            method: "post",
+            body:    JSON.stringify(data),
+            headers: { "Content-Type": "application/json" }
+
+        });
 
     } catch (err) {
 
-        // except requests.exceptions.HTTPError as err:
+        let timeNow = new Date();
+        let timeNowISO = timeNow.toISOString();
+
         console.error(err);
-        console.log("An error occured.");
-        return;
+        console.log(chalk.blue(timeNowISO) + chalk.red("An error occured."));
 
     }
-    
-    console.log("Image successfully sent to Discod, code {}.".format(result.status_code))
-
-    */
 
 }
 
-function getInstagramHTML(targetInstagramUsername) {
-
-    html = requests.get("https://www.instagram.com/" + targetInstagramUsername + "/?__a=1");
-    return html;
-
-}
-
-function main() {
-    
+async function main() {
+     
     try {
 
-        html = getInstagramHTML(targetInstagramUsername);
+        function test(jsonData) {
+            
+            let timeNow = new Date();
+            let timeNowISO = timeNow.toISOString();
 
-        if (readFromFile(database) == getLastPublicationURL(html)) {
+            if (readFromFile(database) == getLastPublicationURL(jsonData)) {
 
-            console.log("No new image(s) to send to Discord.");
+                console.log(chalk.blue(timeNowISO) + " No new image(s) found.");
+                
+            } else {
+                        
+                writeToFile(getLastPublicationURL(jsonData), database);
+                console.log(chalk.blue(timeNowISO) + " New image(s) found.");
+                webhook(jsonData);
+                        
+            }
 
-        } else {
-        
-            writeToFile(getLastPublicationURL(html), database);
-            console.log("New image(s) to send to Discord.");
-            webhook(webhookURL, getInstagramHTML(targetInstagramUsername));
-        
         }
 
+        const jsonData = await fetch(targetInstagramURL).then(res => res.json());
+
+        setTimeout(function() { test(jsonData); }, 20000);
+
     } catch (err) {
 
+        let timeNow = new Date();
+        let timeNowISO = timeNow.toISOString();
+
         console.error(err);
-        console.log("An error occured.");
+        console.log(chalk.blue(timeNowISO) + chalk.red("An error occured."));
 
     }
 
 }
 
-
-if (__name__ == "__main__") {
-
-    main();
-
-}
+// Start testing for new images every 20 seconds.
+setInterval(function() { main(); }, 20000);
