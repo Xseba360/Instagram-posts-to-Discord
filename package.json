@@ -1,5 +1,5 @@
 {
-  "name": "Instagram-to-Discord-js",
+  "name": "instagram-to-discord-js",
   "version": "1.0.0",
   "description": "Monitors an Instagram account and send images to a Discord channel by a webhook when new iamges/posts are found.",
   "main": "main.js",
