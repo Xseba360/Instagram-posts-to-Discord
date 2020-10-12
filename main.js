@@ -1,5 +1,19 @@
+// Requiring this allows access to the environment variables of the running node process.
+require("dotenv").config();
+
+// Sets the target Instagram username.
+const targetInstagramUsername = process.env.TARGET_INSTAGRAM_USERNAME;
+
+// Sets the Discord webhook URL.
+const discordWebhookURL = process.env.DISCORD_WEBHOOK_URL;
+
+// Sets the delay.
+// The delay has to be same for both locations that use this variable
+// or the timing will be incorrect.
+const delay = process.env.DELAY;
+
 // Requires the node-fetch module.
-const fetch = require("node-fetch")
+const fetch = require("node-fetch");
 
 // Requires the fs module.
 const fs = require("fs");
@@ -8,20 +22,20 @@ const fs = require("fs");
 const chalk = require("chalk");
 
 // The target Instagram URL.
-const targetInstagramUsername = "TARGET_INSTAGRAM_USERNAME_HERE";
 const targetInstagramURL = ("https://www.instagram.com/" + targetInstagramUsername + "/?__a=1");
-
-// The target Discord webhook URL.
-const webhookID = "WEBHOOK_ID_HERE";
-const webhookToken = "WEBHOOK_TOKEN_HERE";
-const webhookURL = ("https://discordapp.com/api/webhooks/" + webhookID + "/" + webhookToken);
 
 // The database file (just a text file).
 const database = "database.txt";
 
-// The delay has to be same for both locations that use this variable
-// or the timing will be incorrect.
-const delay = 20000;
+// Function to get the current time in ISO format.
+function timeNowISO() {
+
+	let timeNow = new Date();
+	let timeNowISO = timeNow.toISOString();
+	
+	return timeNowISO;
+
+}
 
 // Function to write data to the database file.
 function writeToFile(content, filename) {
@@ -32,11 +46,8 @@ function writeToFile(content, filename) {
 
         if (err) {
 
-            let timeNow = new Date();
-            let timeNowISO = timeNow.toISOString();
-
             console.error(err);
-            console.log(chalk.blue(timeNowISO) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+            console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
             
         } else {
             
@@ -44,11 +55,8 @@ function writeToFile(content, filename) {
 
                 if (err) {
 
-                    let timeNow = new Date();
-                    let timeNowISO = timeNow.toISOString();
-
                     console.error(err);
-                    console.log(chalk.blue(timeNowISO) + chalk.red("An error occured trying to write to the file \"" + filename + "\"."));
+                    console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured trying to write to the file \"" + filename + "\"."));
 
                 }
 
@@ -69,11 +77,8 @@ function readFromFile(filename) {
 
         if (err) {
 
-            let timeNow = new Date();
-            let timeNowISO = timeNow.toISOString();
-
             console.error(err);
-            console.log(chalk.blue(timeNowISO) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+            console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
             
         } else {
             
@@ -81,11 +86,8 @@ function readFromFile(filename) {
 
                 if (err) {
 
-                    let timeNow = new Date();
-                    let timeNowISO = timeNow.toISOString();
-
                     console.error(err)
-                    console.log(chalk.blue(timeNowISO) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+                    console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
 
                 } else {
 
@@ -163,7 +165,7 @@ function webhook(jsonData) {
         data["embeds"].append(embed);
 
         // Use the node-fetch module to interact with the Discord webhook.
-        fetch(webhookURL, {
+        fetch(discordWebhookURL, {
 
             method: "post",
             body:    JSON.stringify(data),
@@ -173,11 +175,8 @@ function webhook(jsonData) {
 
     } catch (err) {
 
-        let timeNow = new Date();
-        let timeNowISO = timeNow.toISOString();
-
         console.error(err);
-        console.log(chalk.blue(timeNowISO) + chalk.red("An error occured."));
+        console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured."));
 
     }
 
@@ -190,9 +189,6 @@ async function main() {
 
         // The function to test for new images/posts.
         function test(jsonData) {
-            
-            let timeNow = new Date();
-            let timeNowISO = timeNow.toISOString();
 
             // This compares the recorded old publication URL in the database file
             // with the newest retrieved publication URL.
@@ -201,7 +197,7 @@ async function main() {
             // it most likely means that there are no new images/posts.
             if (readFromFile(database) == getLastPublicationURL(jsonData)) {
 
-                console.log(chalk.blue(timeNowISO) + " " + chalk.yellow("No new image(s) found."));
+                console.log(chalk.blue(timeNowISO()) + " " + chalk.yellow("No new image(s) found."));
             
             // If the recorded old publication URL is not the same as the newest retrieved publication URL,
             // it most likely means that there is/are (a) new image(s)/post(s).
@@ -209,7 +205,7 @@ async function main() {
                 
                 // Record the new publication URL to the database file.
                 writeToFile(getLastPublicationURL(jsonData), database);
-                console.log(chalk.blue(timeNowISO) + " " + chalk.green("New image(s) found."));
+                console.log(chalk.blue(timeNowISO()) + " " + chalk.green("New image(s) found."));
                 webhook(jsonData);
                         
             }
@@ -224,11 +220,8 @@ async function main() {
 
     } catch (err) {
 
-        let timeNow = new Date();
-        let timeNowISO = timeNow.toISOString();
-
         console.error(err);
-        console.log(chalk.blue(timeNowISO) + chalk.red("An error occured."));
+        console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured."));
 
     }
 
