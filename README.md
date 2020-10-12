@@ -1,4 +1,4 @@
-# Instagram-to-Discord-js
+# Instagram-posts-to-Discord
 By [Fernando](https://github.com/dlfernando/)\
 Modified and translated from Python to JavaScript by [Merrick919](https://github.com/Merrick919)\
 Original repo: [https://github.com/dlfernando/Instagram-to-discord](https://github.com/dlfernando/Instagram-to-discord)
