@@ -8,12 +8,18 @@ const targetInstagramUsername = process.env.TARGET_INSTAGRAM_USERNAME;
 const discordWebhookURL = process.env.DISCORD_WEBHOOK_URL;
 
 // Sets the delay.
-// The delay has to be same for both locations that use this variable
+// The delay has to be same for all locations that use this variable
 // or the timing will be incorrect.
 const delay = process.env.DELAY;
 
+// Sets the Discord embed colour.
+const discordEmbedColour = process.env.DISCORD_EMBED_COLOUR;
+
 // Requires the node-fetch module.
 const fetch = require("node-fetch");
+
+// Requires the webhook-discord module.
+const webhook = require("webhook-discord");
 
 // Requires the fs module.
 const fs = require("fs");
@@ -27,6 +33,9 @@ const targetInstagramURL = ("https://www.instagram.com/" + targetInstagramUserna
 // The database file (just a text file).
 const database = "database.txt";
 
+// Create a new webhook.
+const Hook = new webhook.Webhook(discordWebhookURL)
+
 // Function to get the current time in ISO format.
 function timeNowISO() {
 
@@ -37,39 +46,8 @@ function timeNowISO() {
 
 }
 
-// Function to write data to the database file.
-function writeToFile(content, filename) {
-
-    let filepath = (".\\" + filename);
-
-    fs.access(filepath, fs.constants.R_OK, (err) => {
-
-        if (err) {
-
-            console.error(err);
-            console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
-            
-        } else {
-            
-            fs.writeFile(filepath, content, err => {
-
-                if (err) {
-
-                    console.error(err);
-                    console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured trying to write to the file \"" + filename + "\"."));
-
-                }
-
-            });
-            
-        }
-
-    });
-
-}
-
 // Function to read data from the database file.
-function readFromFile(filename) {
+async function readFromFile(filename) {
 
     let filepath = (".\\" + filename);
 
@@ -78,7 +56,7 @@ function readFromFile(filename) {
         if (err) {
 
             console.error(err);
-            console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+            console.log(chalk.blue(timeNowISO()) + " " + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
             
         } else {
             
@@ -87,7 +65,7 @@ function readFromFile(filename) {
                 if (err) {
 
                     console.error(err)
-                    console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+                    console.log(chalk.blue(timeNowISO()) + " " + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
 
                 } else {
 
@@ -103,10 +81,48 @@ function readFromFile(filename) {
     
 }
 
+// Function to write data to the database file.
+async function writeToFile(filename, content) {
+
+    let filepath = (".\\" + filename);
+
+    fs.access(filepath, fs.constants.R_OK, (err) => {
+
+        if (err) {
+
+            console.error(err);
+            console.log(chalk.blue(timeNowISO()) + " " + chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+            
+        } else {
+            
+            fs.writeFile(filepath, content, err => {
+
+                if (err) {
+
+                    console.error(err);
+                    console.log(chalk.blue(timeNowISO()) + " " + chalk.red("An error occured trying to write to the file \"" + filename + "\"."));
+
+                }
+
+            });
+            
+        }
+
+    });
+
+}
+
 // Function to get the target user's full name.
 function getUserFullName(jsonData) {
 
     return jsonData["graphql"]["user"]["full_name"];
+
+}
+
+// Function to get the target user's avatar URL.
+function getAvatarURL(jsonData) {
+
+    return jsonData["graphql"]["user"]["profile_pic_url_hd"];
 
 }
 
@@ -120,7 +136,7 @@ function getTotalImages(jsonData) {
 // Function to get the target user's last publication URL.
 function getLastPublicationURL(jsonData) {
 
-    return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node.shortcode"];
+    return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["shortcode"];
 
 }
 
@@ -145,38 +161,32 @@ function getImageDescription(jsonData) {
 
 }
 
-// Function to interact with the Discord webhook.
-function webhook(jsonData) {
+// Function to send an embed to Discord.
+function sendEmbed(jsonData) {
 
     try {
 
-        // For all parameters, see https://discordapp.com/developers/docs/resources/webhook#execute-webhook.
-        // For all parameters, see https://discordapp.com/developers/docs/resources/channel#embed-object.
+        // Create the embed.
+        let embed = new webhook.MessageBuilder()
+            .setName(targetInstagramUsername)
+            .setAvatar(getAvatarURL(jsonData))
+            .setColor(discordEmbedColour)
+            .setTitle("New post by @" + targetInstagramUsername)
+            .setURL("https://www.instagram.com/p/" + getLastPublicationURL(jsonData) + "/")
+            .setDescription(getImageDescription(jsonData))
+            .setImage(getLastThumbURL(jsonData))
+            .setFooter("Instagram-posts-to-Discord")
+            .setTime();
+        
+        console.log(embed.data.attachments[0]);
 
-        data = {};
-        data["embeds"] = [];
-        embed = {};
-        embed["color"] = 15467852;
-        embed["title"] = ("New pic of @" + targetInstagramUsername);
-        embed["url"] = ("https://www.instagram.com/p/" + getLastPublicationURL(jsonData) + "/");
-        embed["description"] = getImageDescription(jsonData);
-        // embed["image"] = {"url":get_last_thumb_url(jsonData)}; // Uncomment this to send a bigger image to Discord.
-        embed["thumbnail"] = {"url":getLastThumbURL(jsonData)};
-        data["embeds"].append(embed);
-
-        // Use the node-fetch module to interact with the Discord webhook.
-        fetch(discordWebhookURL, {
-
-            method: "post",
-            body:    JSON.stringify(data),
-            headers: { "Content-Type": "application/json" }
-
-        });
+        // Send the embed.
+        Hook.send(embed);
 
     } catch (err) {
 
         console.error(err);
-        console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured."));
+        console.log(chalk.blue(timeNowISO()) + " " + chalk.red("An error occured."));
 
     }
 
@@ -188,40 +198,50 @@ async function main() {
     try {
 
         // The function to test for new images/posts.
-        function test(jsonData) {
+        async function test(jsonData) {
 
             // This compares the recorded old publication URL in the database file
             // with the newest retrieved publication URL.
 
-            // If the recorded old publication URL is the same as the newest retrieved publication URL,
-            // it most likely means that there are no new images/posts.
-            if (readFromFile(database) == getLastPublicationURL(jsonData)) {
+            let oldData = await readFromFile(database);
+            let newData = await getLastPublicationURL(jsonData);
 
-                console.log(chalk.blue(timeNowISO()) + " " + chalk.yellow("No new image(s)/post(s) found."));
-            
-            // If the recorded old publication URL is not the same as the newest retrieved publication URL,
-            // it most likely means that there is/are (a) new image(s)/post(s).
-            } else {
+            async function testData(oldData, newData) {
+
+                // If the recorded old publication URL is the same as the newest retrieved publication URL,
+                // it most likely means that there are no new images/posts.
+                if (oldData == newData) {
+
+                    console.log(chalk.blue(timeNowISO()) + " " + chalk.yellow("No new image(s)/post(s) found."));
                 
-                // Record the new publication URL to the database file.
-                writeToFile(getLastPublicationURL(jsonData), database);
-                console.log(chalk.blue(timeNowISO()) + " " + chalk.green("New image(s)/post(s) found."));
-                webhook(jsonData);
-                        
+                // If the recorded old publication URL is not the same as the newest retrieved publication URL,
+                // it most likely means that there is/are (a) new image(s)/post(s).
+                } else {
+                    
+                    // Record the new publication URL to the database file.
+                    writeToFile(database, newData);
+                    console.log(chalk.blue(timeNowISO()) + " " + chalk.green("New image(s)/post(s) found."));
+                    sendEmbed(jsonData);
+                            
+                }
+
             }
+            
+            // Wait x milliseconds so the data can be retrieved.
+            setTimeout(function() { testData(oldData, newData); }, delay);
 
         }
 
         // Use the node-fetch module to retrieve the data.
-        const jsonData = await fetch(targetInstagramURL).then(res => res.json());
+        let jsonData = await fetch(targetInstagramURL).then(res => res.json());
 
-        // Wait x seconds so there is a bigger total delay between checks for new images/posts (total: 20 seconds) and so the data can be retrieved. 
+        // Wait x milliseconds so the data can be retrieved. 
         setTimeout(function() { test(jsonData); }, delay);
 
     } catch (err) {
 
         console.error(err);
-        console.log(chalk.blue(timeNowISO()) + chalk.red("An error occured."));
+        console.log(chalk.blue(timeNowISO()) + " " + chalk.red("An error occured."));
 
     }
 
