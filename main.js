@@ -197,7 +197,7 @@ async function main() {
             // it most likely means that there are no new images/posts.
             if (readFromFile(database) == getLastPublicationURL(jsonData)) {
 
-                console.log(chalk.blue(timeNowISO()) + " " + chalk.yellow("No new image(s) found."));
+                console.log(chalk.blue(timeNowISO()) + " " + chalk.yellow("No new image(s)/post(s) found."));
             
             // If the recorded old publication URL is not the same as the newest retrieved publication URL,
             // it most likely means that there is/are (a) new image(s)/post(s).
@@ -205,7 +205,7 @@ async function main() {
                 
                 // Record the new publication URL to the database file.
                 writeToFile(getLastPublicationURL(jsonData), database);
-                console.log(chalk.blue(timeNowISO()) + " " + chalk.green("New image(s) found."));
+                console.log(chalk.blue(timeNowISO()) + " " + chalk.green("New image(s)/post(s) found."));
                 webhook(jsonData);
                         
             }
@@ -227,5 +227,5 @@ async function main() {
 
 }
 
-// Start the main function every x seconds.
+// Start the main function every x milliseconds.
 setInterval(function() { main(); }, delay);

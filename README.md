@@ -1,3 +1,5 @@
+# IS NOT WORKING CURRENTLY, I'M STILL FIXING IT
+
 # Instagram-posts-to-Discord
 By [Fernando](https://github.com/dlfernando/)\
 Modified and translated from Python to JavaScript by [Merrick919](https://github.com/Merrick919)\
@@ -18,10 +20,17 @@ It executes 2 actions:
 
 ### Usage
 
-Variables you should change in the .env file are:
+You should create a .env file with the variables listed below:
 1. `TARGET_INSTAGRAM_USERNAME`
 2. `DISCORD_WEBHOOK_URL`
 3. `DELAY`
+
+.env file example:
+```
+TARGET_INSTAGRAM_USERNAME=xxx
+DISCORD_WEBHOOK_URL=xxx
+DELAY=20000
+```
 
 For `TARGET_INSTAGRAM_USERNAME`, it's simply the username of the account you want to monitor.\
 For `DISCORD_WEBHOOK_URL`, first create a webhook in Discord, then copy the webhook URL.\
