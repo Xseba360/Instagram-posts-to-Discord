@@ -1,22 +1,3 @@
-// Copyright (c) 2020 Fernando
-// Url: https://github.com/dlfernando/
-// License: MIT
-
-// Modified and translated from Python to JavaScript by Merrick919
-
-// Variables you have to change are:
-// 1. targetInstagramUsername
-// 2. webhookID
-// 3. webhookURL
-// 4. delay
-//
-// For targetInstagramUsername, it's simply the username of the account you want to monitor.
-// For webhookID and webhookURL, first create a webhook in Discord, then copy the webhook URL.
-// The first part after "https://discordapp.com/api/webhooks/" is the webhook ID (some numbers).
-// The second part after the webhook ID is the webhook token.
-// You can just replace the targetInstagramURL and webhookURL links directly if you want.
-// delay is the amount of time in milliseconds between checks for new images/posts.
-
 // Requires the node-fetch module.
 const fetch = require("node-fetch")
 
