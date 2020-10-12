@@ -8,12 +8,14 @@
 // 1. targetInstagramUsername
 // 2. webhookID
 // 3. webhookURL
+// 4. delay
 //
 // For targetInstagramUsername, it's simply the username of the account you want to monitor.
 // For webhookID and webhookURL, first create a webhook in Discord, then copy the webhook URL.
 // The first part after "https://discordapp.com/api/webhooks/" is the webhook ID (some numbers).
 // The second part after the webhook ID is the webhook token.
 // You can just replace the targetInstagramURL and webhookURL links directly if you want.
+// delay is the amount of time in milliseconds between checks for new images/posts.
 
 // Requires the node-fetch module.
 const fetch = require("node-fetch")
@@ -24,14 +26,21 @@ const fs = require("fs");
 // Requires the chalk module.
 const chalk = require("chalk");
 
+// The target Instagram URL.
 const targetInstagramUsername = "TARGET_INSTAGRAM_USERNAME_HERE";
 const targetInstagramURL = ("https://www.instagram.com/" + targetInstagramUsername + "/?__a=1");
 
+// The target Discord webhook URL.
 const webhookID = "WEBHOOK_ID_HERE";
 const webhookToken = "WEBHOOK_TOKEN_HERE";
 const webhookURL = ("https://discordapp.com/api/webhooks/" + webhookID + "/" + webhookToken);
 
+// The database file (just a text file).
 const database = "database.txt";
+
+// The delay has to be same for both locations that use this variable
+// or the timing will be incorrect.
+const delay = 20000;
 
 // Function to write data to the database file.
 function writeToFile(content, filename) {
@@ -229,8 +238,8 @@ async function main() {
         // Use the node-fetch module to retrieve the data.
         const jsonData = await fetch(targetInstagramURL).then(res => res.json());
 
-        // Wait 20 seconds so there is a bigger total delay between checks for new images/posts (total: 20 seconds) and so the data can be retrieved. 
-        setTimeout(function() { test(jsonData); }, 20000);
+        // Wait x seconds so there is a bigger total delay between checks for new images/posts (total: 20 seconds) and so the data can be retrieved. 
+        setTimeout(function() { test(jsonData); }, delay);
 
     } catch (err) {
 
@@ -244,5 +253,5 @@ async function main() {
 
 }
 
-// Start the main function every 20 seconds.
-setInterval(function() { main(); }, 20000);
+// Start the main function every x seconds.
+setInterval(function() { main(); }, delay);

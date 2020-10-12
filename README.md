@@ -22,12 +22,14 @@ Variables you have to change are:
 1. `targetInstagramUsername`
 2. `webhookID`
 3. `webhookURL`
+4. `delay`
 
 For `targetInstagramUsername`, it's simply the username of the account you want to monitor.\
 For `webhookID` and `webhookURL`, first create a webhook in Discord, then copy the webhook URL.\
 The first part after "https://discordapp.com/api/webhooks/" is the webhook ID (some numbers).\
 The second part after the webhook ID is the webhook token.\
-You can just replace the `targetInstagramURL` and `webhookURL` links directly if you want.
+You can just replace the `targetInstagramURL` and `webhookURL` links directly if you want.\
+`delay` is the amount of time in milliseconds between checks for new images/posts.
 
 You can run this script just by navigating to the project directory with command prompt then running the command `npm start` or `node main.js`.\
 I recommend using [nodemon](https://www.npmjs.com/package/nodemon). You can run the command `nodemon main.js` if you have it.
