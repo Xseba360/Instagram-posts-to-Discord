@@ -22,20 +22,24 @@ It executes 2 actions:
 
 You should create a .env file with the variables listed below:
 1. `TARGET_INSTAGRAM_USERNAME`
-2. `DISCORD_WEBHOOK_URL`
-3. `DELAY`
-4. `DISCORD_EMBED_COLOUR`
+2. `DISCORD_WEBHOOK_ID`
+3. `DISCORD_WEBHOOK_TOKEN`
+4. `DELAY`
+5. `DISCORD_EMBED_COLOUR`
 
 .env file example:
 ```
-TARGET_INSTAGRAM_USERNAME=xxx
-DISCORD_WEBHOOK_URL=xxx
+TARGET_INSTAGRAM_USERNAME=xxxxxx
+DISCORD_WEBHOOK_ID=xxxxxx
+DISCORD_WEBHOOK_TOKEN=xxxxxx
 DELAY=20000
 DISCORD_EMBED_COLOUR=7fffd4
 ```
 
 For `TARGET_INSTAGRAM_USERNAME`, it's simply the username of the account you want to monitor.\
-For `DISCORD_WEBHOOK_URL`, first create a webhook in Discord, then copy the webhook URL.\
+For `DISCORD_WEBHOOK_ID` and `DISCORD_WEBHOOK_TOKEN`, first create a webhook in Discord, then copy the webhook URL.\
+In the webhook URL below, "0123456789" is the `DISCORD_WEBHOOK_ID` and "qwertyASDF012345" is the `DISCORD_WEBHOOK_TOKEN`. This is just an example and will not work.\
+https://discordapp.com/api/webhooks/0123456789/qwertyASDF012345
 `DELAY` is the amount of time in milliseconds between checks for new images/posts (the delay before the first check will be tripled).\
 `DISCORD_EMBED_COLOUR` is the hex code of a colour (an integer).
 

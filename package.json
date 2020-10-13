@@ -5,9 +5,9 @@
   "main": "main.js",
   "dependencies": {
     "chalk": "^4.1.0",
+    "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
-    "node-fetch": "^2.6.1",
-    "webhook-discord": "^3.7.7"
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {},
   "scripts": {

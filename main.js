@@ -4,8 +4,11 @@ require("dotenv").config();
 // Sets the target Instagram username.
 const targetInstagramUsername = process.env.TARGET_INSTAGRAM_USERNAME;
 
-// Sets the Discord webhook URL.
-const discordWebhookURL = process.env.DISCORD_WEBHOOK_URL;
+// Sets the Discord webhook ID.
+const discordWebhookID = process.env.DISCORD_WEBHOOK_ID;
+
+// Sets the Discord webhook token.
+const discordWebhookToken = process.env.DISCORD_WEBHOOK_TOKEN;
 
 // Sets the delay.
 // The delay has to be same for all locations that use this variable
@@ -18,8 +21,8 @@ const discordEmbedColour = process.env.DISCORD_EMBED_COLOUR;
 // Requires the node-fetch module.
 const fetch = require("node-fetch");
 
-// Requires the webhook-discord module.
-const webhook = require("webhook-discord");
+// Requires the discord.js module.
+const Discord = require('discord.js');
 
 // Requires the fs module.
 const fs = require("fs");
@@ -33,8 +36,8 @@ const targetInstagramURL = ("https://www.instagram.com/" + targetInstagramUserna
 // The database file (just a text file).
 const database = "database.txt";
 
-// Create a new webhook.
-const Hook = new webhook.Webhook(discordWebhookURL)
+// Create a new webhook client.
+const discordWebhookClient = new Discord.WebhookClient(discordWebhookID, discordWebhookToken);
 
 // Function to get the current time in ISO format.
 function timeNowISO() {
@@ -167,21 +170,22 @@ function sendEmbed(jsonData) {
     try {
 
         // Create the embed.
-        let embed = new webhook.MessageBuilder()
-            .setName(targetInstagramUsername)
-            .setAvatar(getAvatarURL(jsonData))
+        let embed = new Discord.MessageEmbed()
             .setColor(discordEmbedColour)
+            .setAuthor(targetInstagramUsername, getAvatarURL(jsonData), ("https://www.instagram.com/" + targetInstagramUsername + "/"))
             .setTitle("New post by @" + targetInstagramUsername)
             .setURL("https://www.instagram.com/p/" + getLastPublicationURL(jsonData) + "/")
             .setDescription(getImageDescription(jsonData))
             .setImage(getLastThumbURL(jsonData))
             .setFooter("Instagram-posts-to-Discord")
-            .setTime();
-        
-        console.log(embed.data.attachments[0]);
+            .setTimestamp();
 
         // Send the embed.
-        Hook.send(embed);
+        discordWebhookClient.send({
+            username: targetInstagramUsername,
+            avatarURL: getAvatarURL(jsonData),
+            embeds: [embed],
+        });
 
     } catch (err) {
 
