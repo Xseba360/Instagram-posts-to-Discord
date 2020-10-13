@@ -1,7 +1,7 @@
 {
   "name": "instagram-posts-to-discord",
   "version": "1.0.0",
-  "description": "Monitors an Instagram account and send images to a Discord channel by a webhook when new iamges/posts are found.",
+  "description": "Monitors an Instagram account and send images to a Discord channel by a webhook when new posts are found.",
   "main": "main.js",
   "dependencies": {
     "chalk": "^4.1.0",
