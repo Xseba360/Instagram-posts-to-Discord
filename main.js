@@ -42,6 +42,17 @@ const database = "database.txt";
 // Set the database file path.
 const filepath = (".\\" + database);
 
+// If delay is too small, shortDelay will be even smaller
+// and this will probably not work.
+const shortDelay = delay * 0.5;
+
+// Function to get a random integer.
+function getRndInteger(min, max) {
+
+	return Math.floor(Math.random() * (max - min) ) + min;
+
+}
+
 // Function to get the current time in ISO format.
 function timeNowISO() {
 
@@ -53,18 +64,18 @@ function timeNowISO() {
 }
 
 // Function to log a message to the console.
-function consoleLog(message) {
+function consoleLog(threadID, message) {
 
-    console.log(chalk.blue(timeNowISO()) + " " + message);
+    console.log(chalk.blue(timeNowISO()) + " " + chalk.magenta(threadID) + " " + message);
 
 }
 
 // You can use this to get the target user's full name.
 /*
 // Function to get the target user's full name.
-function getUserFullName(jsonData) {
+function getUserFullName(threadID, jsonData) {
 
-    consoleLog("Retrieving the target user's full name…");
+    consoleLog(threadID, "Retrieving the target user's full name…");
 
     return jsonData["graphql"]["user"]["full_name"];
 
@@ -72,27 +83,27 @@ function getUserFullName(jsonData) {
 */
 
 // Function to get the target user's avatar URL.
-function getAvatarURL(jsonData) {
+function getAvatarURL(threadID, jsonData) {
 
-    consoleLog("Retrieving the target user's avatar URL…");
+    consoleLog(threadID, "Retrieving the target user's avatar URL…");
 
     return jsonData["graphql"]["user"]["profile_pic_url_hd"];
 
 }
 
 // Function to get the target user's last post URL.
-function getLastPostURL(jsonData) {
+function getLastPostURL(threadID, jsonData) {
 
-    consoleLog("Retrieving the target user's last post URL…");
+    consoleLog(threadID, "Retrieving the target user's last post URL…");
 
     return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["shortcode"];
 
 }
 
 // Function to get the target user's last image URL.
-function getLastImageURL(jsonData) {
+function getLastImageURL(threadID, jsonData) {
 
-    consoleLog("Retrieving the target user's last image URL…");
+    consoleLog(threadID, "Retrieving the target user's last image URL…");
 
     return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["display_url"];
 
@@ -101,9 +112,9 @@ function getLastImageURL(jsonData) {
 // You can use this to get the target user's last post thumbnail URL.
 /*
 // Function to get the target user's last post thumbnail URL.
-function getLastThumbURL(jsonData) {
+function getLastThumbURL(threadID, jsonData) {
 
-    consoleLog("Retrieving the target user's last post thumbnail URL…");
+    consoleLog(threadID, "Retrieving the target user's last post thumbnail URL…");
 
     return jsonData["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]["thumbnail_src"];
 
@@ -112,9 +123,9 @@ function getLastThumbURL(jsonData) {
 
 // Function to get the target user's last post caption.
 // There might not be a caption.
-function getImageCaption(jsonData) {
+function getImageCaption(threadID, jsonData) {
 
-    consoleLog("Retrieving the target user's last post caption…");
+    consoleLog(threadID, "Retrieving the target user's last post caption…");
 
     try {
 
@@ -122,7 +133,7 @@ function getImageCaption(jsonData) {
 
     } catch (err) {
 
-        consoleLog("No caption for the last post was found.");
+        consoleLog(threadID, "No caption for the last post was found.");
 
         return false;
 
@@ -131,7 +142,7 @@ function getImageCaption(jsonData) {
 }
 
 // Function to send an embed to Discord.
-function sendEmbed(jsonData) {
+function sendEmbed(threadID, jsonData) {
 
     try {
 
@@ -139,12 +150,12 @@ function sendEmbed(jsonData) {
 
         let color = discordEmbedColour;
         let author = targetInstagramUsername;
-        let authorAvatarURL = getAvatarURL(jsonData);
+        let authorAvatarURL = getAvatarURL(threadID, jsonData);
         let authorURL = ("https://www.instagram.com/" + targetInstagramUsername + "/");
         let title = ("New post by @" + targetInstagramUsername);
-        let url = ("https://www.instagram.com/p/" + getLastPostURL(jsonData) + "/");
-        let caption = getImageCaption(jsonData);
-        let image = getLastImageURL(jsonData);
+        let url = ("https://www.instagram.com/p/" + getLastPostURL(threadID, jsonData) + "/");
+        let caption = getImageCaption(threadID, jsonData);
+        let image = getLastImageURL(threadID, jsonData);
         let footer = "Instagram-posts-to-Discord";
         let footerIconURL = "https://i.imgur.com/WhdOxpN.png";
 
@@ -179,141 +190,173 @@ function sendEmbed(jsonData) {
         // Send the embed.
         discordWebhookClient.send({
             username: targetInstagramUsername,
-            avatarURL: getAvatarURL(jsonData),
+            avatarURL: getAvatarURL(threadID, jsonData),
             embeds: [embed],
         });
 
-        consoleLog(chalk.green("Embed sent to Discord."));
+        consoleLog(threadID, chalk.green("Embed sent to Discord."));
 
     } catch (err) {
 
         console.error(err);
-        consoleLog(chalk.red("An error occured."));
+        consoleLog(threadID, chalk.red("An error occured."));
 
     }
 
 }
 
+async function logData(threadID, oldData, newData) {
+
+    consoleLog(threadID, ("Old data: " + oldData));
+    consoleLog(threadID, ("New data: " + newData));
+
+}
+
+async function testData(threadID, oldData, newData, jsonData) {
+
+    // If the recorded old publication URL is the same as the newest retrieved publication URL,
+    // it most likely means that there are no new posts.
+    if (oldData == newData) {
+
+        consoleLog(threadID, chalk.yellow("No new post(s) found."));
+    
+    // If the recorded old publication URL is not the same as the newest retrieved publication URL,
+    // it most likely means that there is/are (a) new post(s).
+    } else {
+
+        // Record the new publication URL to the database file.
+        consoleLog(threadID, chalk.green("New post(s) found."));
+
+        sendEmbed(threadID, jsonData);
+
+        // Check if file access is okay first.
+        fs.access(filepath, fs.constants.R_OK, (err) => {
+    
+            if (err) {
+    
+                console.error(err);
+                consoleLog(threadID, chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+                
+            } else {
+                
+                // Write the new data to the database file.
+                fs.writeFile(filepath, newData, (err) => {
+    
+                    if (err) {
+    
+                        console.error(err);
+                        consoleLog(threadID, chalk.red("An error occured trying to write to the file \"" + filename + "\"."));
+    
+                    } else {
+
+                        consoleLog(threadID, ("New data written to " + filepath + "."));
+
+                    }
+    
+                });
+                
+            }
+    
+        });
+        
+    }
+
+}
+
+// The function to test for new images/posts.
+async function test(threadID, jsonData) {
+
+    // This compares the recorded old publication URL in the database file
+    // with the newest retrieved publication URL.
+
+    let oldData;
+
+    // Wait shortDelay so the data read will be after the data write of the last thread/check.
+    setTimeout(function() {
+
+        // Check if file access is okay first.
+        fs.access(filepath, fs.constants.R_OK, (err) => {
+
+            if (err) {
+
+                console.error(err);
+                consoleLog(threadID, chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+                
+            } else {
+
+                // Read data from the database file.
+                fs.readFile(filepath, "utf8", (err, data) => {
+
+                    if (err) {
+
+                        console.error(err)
+                        consoleLog(threadID, chalk.red("An error occured trying to read the file \"" + filename + "\"."));
+
+                    } else {
+                        
+                        consoleLog(threadID, ("Data read from " + filepath + "."));
+
+                        oldData = data;
+
+                    }
+
+                });
+                
+            }
+
+        });
+
+    }, (shortDelay));
+
+    let newData = getLastPostURL(threadID, jsonData);
+    
+    // Wait x milliseconds so the data can be retrieved.
+    setTimeout(function() { 
+
+        logData(threadID, oldData, newData);
+        testData(threadID, oldData, newData, jsonData);
+
+    }, delay);
+
+}
+
 // The main function to test for new images/posts and interact with the Discord webhook if there is/are (a) new post(s).
-async function main() {
+async function main(threadID) {
      
     try {
-
-        // The function to test for new images/posts.
-        async function test(jsonData) {
-
-            // This compares the recorded old publication URL in the database file
-            // with the newest retrieved publication URL.
-
-            // Check if file access is okay first.
-            fs.access(filepath, fs.constants.R_OK, (err) => {
-        
-                if (err) {
-        
-                    console.error(err);
-                    consoleLog(chalk.red("An error occured trying to read the file \"" + filename + "\"."));
-                    
-                } else {
-
-                    // Read data from the database file.
-                    fs.readFile(filepath, "utf8", (err, data) => {
-        
-                        if (err) {
-        
-                            console.error(err)
-                            consoleLog(chalk.red("An error occured trying to read the file \"" + filename + "\"."));
-        
-                        } else {
-                            
-                            consoleLog("Data read from " + filepath + ".");
-
-                            oldData = data;
-        
-                        }
-        
-                    });
-                    
-                }
-        
-            });
-
-            let newData = getLastPostURL(jsonData);
-
-            async function testData(oldData, newData) {
-
-                consoleLog("Old data: " + oldData);
-                consoleLog("New data: " + newData);
-
-                // If the recorded old publication URL is the same as the newest retrieved publication URL,
-                // it most likely means that there are no new posts.
-                if (oldData == newData) {
-
-                    consoleLog(chalk.yellow("No new post(s) found."));
-                
-                // If the recorded old publication URL is not the same as the newest retrieved publication URL,
-                // it most likely means that there is/are (a) new post(s).
-                } else {
-                    
-                    // Record the new publication URL to the database file.
-                    consoleLog(chalk.green("New post(s) found."));
-
-                    sendEmbed(jsonData);
-
-                    // Check if file access is okay first.
-                    fs.access(filepath, fs.constants.R_OK, (err) => {
-                
-                        if (err) {
-                
-                            console.error(err);
-                            consoleLog(chalk.red("An error occured trying to read the file \"" + filename + "\"."));
-                            
-                        } else {
-                            
-                            // Write the new data to the database file.
-                            fs.writeFile(filepath, newData, (err) => {
-                
-                                if (err) {
-                
-                                    console.error(err);
-                                    consoleLog(chalk.red("An error occured trying to write to the file \"" + filename + "\"."));
-                
-                                } else {
-
-                                    consoleLog("New data written to " + filepath + ".");
-
-                                }
-                
-                            });
-                            
-                        }
-                
-                    });
-                    
-                }
-
-            }
-            
-            // Wait x milliseconds so the data can be retrieved.
-            setTimeout(function() { testData(oldData, newData); }, delay);
-
-        }
 
         // Use the node-fetch module to retrieve the data.
         let jsonData = await fetch(targetInstagramURL).then(res => res.json());
 
         // Wait x milliseconds so the data can be retrieved. 
-        setTimeout(function() { test(jsonData); }, delay);
+        setTimeout(function() {
+
+            test(threadID, jsonData);
+
+        }, delay);
 
     } catch (err) {
 
         console.error(err);
-        consoleLog(chalk.red("An error occured."));
+        consoleLog(threadID, chalk.red("An error occured."));
 
     }
 
 }
 
-consoleLog("Script started.")
+consoleLog(0, "Script initialised.")
+consoleLog(0, ("shortDelay: " + shortDelay));
 
 // Start the main function every x milliseconds.
-setInterval(function() { main(); }, delay);
+setInterval(function() {
+
+    // threadID for debugging.
+    let threadID = getRndInteger(1000, 9999);
+
+    setTimeout(function() {
+
+        main(threadID);
+
+    }, shortDelay);
+
+}, delay);
