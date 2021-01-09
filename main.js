@@ -156,8 +156,6 @@ function sendEmbed(threadID, jsonData) {
         let url = ("https://www.instagram.com/p/" + getLastPostURL(threadID, jsonData) + "/");
         let caption = getImageCaption(threadID, jsonData);
         let image = getLastImageURL(threadID, jsonData);
-        let footer = "Instagram-posts-to-Discord";
-        let footerIconURL = "https://i.imgur.com/WhdOxpN.png";
 
         // Create the embed.
         if (!caption) {
@@ -169,7 +167,6 @@ function sendEmbed(threadID, jsonData) {
                 .setTitle(title)
                 .setURL(url)
                 .setImage(image)
-                .setFooter(footer, footerIconURL)
                 .setTimestamp();
 
         } else {
@@ -182,7 +179,6 @@ function sendEmbed(threadID, jsonData) {
                 .setURL(url)
                 .setDescription(caption)
                 .setImage(image)
-                .setFooter(footer, footerIconURL)
                 .setTimestamp();
 
         }
@@ -324,6 +320,8 @@ async function test(threadID, jsonData) {
 async function main(threadID) {
      
     try {
+
+        console.log("targetInstagramURL: " + targetInstagramURL);
 
         // Use the node-fetch module to retrieve the data.
         let jsonData = await fetch(targetInstagramURL).then(res => res.json());
