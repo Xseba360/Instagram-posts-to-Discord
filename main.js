@@ -18,6 +18,9 @@ const delay = process.env.DELAY;
 // Sets the Discord embed colour.
 const discordEmbedColour = process.env.DISCORD_EMBED_COLOUR;
 
+// Sets the cookie.
+const cookie = process.env.COOKIE;
+
 // Requires the node-fetch module.
 const fetch = require("node-fetch");
 
@@ -320,11 +323,34 @@ async function test(threadID, jsonData) {
 async function main(threadID) {
      
     try {
-
-        console.log("targetInstagramURL: " + targetInstagramURL);
-
+        
         // Use the node-fetch module to retrieve the data.
-        let jsonData = await fetch(targetInstagramURL).then(res => res.json());
+
+        let options = false;
+
+        // Set the options for retrieval.
+        // If you get "FetchError: invalid json response body at https://www.instagram.com/accounts/login/ reason: Unexpected token < in JSON at position 0",
+        // uncomment the section below and make sure you provided a cookie value in the .env file.
+        /*
+        options = {
+            headers: {
+                "cookie": cookie
+            }
+        };
+        */
+
+        let jsonData;
+        
+        // Retrieve the data.
+        if (!options) {
+
+            jsonData = await fetch(targetInstagramURL).then(res => res.json());
+
+        } else {
+
+            jsonData = await fetch(targetInstagramURL, options).then(res => res.json());
+
+        }
 
         // Wait x milliseconds so the data can be retrieved. 
         setTimeout(function() {
@@ -342,14 +368,13 @@ async function main(threadID) {
 
 }
 
-consoleLog(0, "Script initialised.")
-consoleLog(0, ("shortDelay: " + shortDelay));
+consoleLog("0000", "Script initialised.");
 
 // Start the main function every x milliseconds.
 setInterval(function() {
 
     // threadID for debugging.
-    let threadID = getRndInteger(1000, 9999);
+    let threadID = getRndInteger(1000, 9999).toString();
 
     setTimeout(function() {
 
