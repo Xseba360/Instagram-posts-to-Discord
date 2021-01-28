@@ -10,6 +10,10 @@ This script monitors an Instagram account and send images to a Discord channel b
 1. The script checks for a new post in an Instagram account every x seconds (the recommended length is 20 seconds).
 2. If a new post is found, the script sends the new Instagram image to a Discord channel by a webhook, in an embed.
 
+Below is an example of an embed in Discord (the Instagram post can be found [here](https://www.instagram.com/p/CKRd2fJjx-7/)).
+
+![](https://i.imgur.com/GYqI8Pu.png)
+
 ### Requirements
 
 - Node.js
@@ -38,7 +42,7 @@ COOKIE=exampleCookieValue
 For `TARGET_INSTAGRAM_USERNAME`, it's simply the username of the account you want to monitor.\
 For `DISCORD_WEBHOOK_ID` and `DISCORD_WEBHOOK_TOKEN`, first create a webhook in Discord, then copy the webhook URL.\
 In the webhook URL below, "0123456789" is the `DISCORD_WEBHOOK_ID` and "qwertyASDF012345" is the `DISCORD_WEBHOOK_TOKEN`. This is just an example and will not work.\
-https://discordapp.com/api/webhooks/0123456789/qwertyASDF012345
+https://<!--comment to unlink-->discordapp.com/api/webhooks/0123456789/qwertyASDF012345\
 `DELAY` is the amount of time in milliseconds between checks for new posts. If the delay is too short it might not work. Also note that the delay before the first possible embed sent will be 3.5 times longer.\
 `DISCORD_EMBED_COLOUR` is the hex code of a colour (without the hash (#)).\
 `COOKIE` is required if you get a specific error (see the Errors section for more information).
@@ -54,7 +58,7 @@ If so, make sure you provided a cookie value in the .env file and uncomment the 
 
 To get a cookie value, log in to the Instagram website on a browser.\
 Open the developer console and navigate to the "Network" tab (or anything that can track requests and responses).\
-Reload the page and view the request information for the main webpage file (www.instagram.com).\
+Reload the page and view the request information for the main webpage file (www.<!--comment to unlink-->instagram.com).\
 The cookie value should be displayed in the cookie header of the request headers.
 
 To uncomment the section, remove the `/*` at the top of the section and the `*/` at the bottom of the section.\
