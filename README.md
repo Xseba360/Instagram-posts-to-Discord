@@ -39,15 +39,21 @@ DISCORD_EMBED_COLOUR=5851DB
 COOKIE=exampleCookieValue
 ```
 
-For `TARGET_INSTAGRAM_USERNAME`, it's simply the username of the account you want to monitor.\
-For `DISCORD_WEBHOOK_ID` and `DISCORD_WEBHOOK_TOKEN`, first create a webhook in Discord, then copy the webhook URL.\
+For `TARGET_INSTAGRAM_USERNAME`, it's simply the username of the account you want to monitor.
+
+For `DISCORD_WEBHOOK_ID` and `DISCORD_WEBHOOK_TOKEN`, first create a webhook in Discord, then copy the webhook URL.
+
 In the webhook URL below, "0123456789" is the `DISCORD_WEBHOOK_ID` and "qwertyASDF012345" is the `DISCORD_WEBHOOK_TOKEN`. This is just an example and will not work.\
-https://<!--comment to unlink-->discordapp.com/api/webhooks/0123456789/qwertyASDF012345\
-`DELAY` is the amount of time in milliseconds between checks for new posts. If the delay is too short it might not work. Also note that the delay before the first possible embed sent will be 3.5 times longer.\
-`DISCORD_EMBED_COLOUR` is the hex code of a colour (without the hash (#)).\
+https://<!--comment to unlink-->discordapp.com/api/webhooks/0123456789/qwertyASDF012345
+
+`DELAY` is the amount of time in milliseconds between checks for new posts. If the delay is too short it might not work. Also note that the delay before the first possible embed sent will be 3.5 times longer.
+
+`DISCORD_EMBED_COLOUR` is the hex code of a colour (without the hash (#)).
+
 `COOKIE` is required if you get a specific error (see the Errors section for more information).
 
-You can run this script just by navigating to the project directory with command prompt then running the command `npm start` or `node main.js`.\
+You can run this script just by navigating to the project directory with command prompt then running the command `npm start` or `node main.js`.
+
 I recommend you use [nodemon](https://www.npmjs.com/package/nodemon). You can run the command `nodemon main.js` if you have it.
 
 ### Errors
@@ -56,12 +62,16 @@ You might get `FetchError: invalid json response body at https://www.instagram.c
 
 If so, make sure you provided a cookie value in the .env file and uncomment the section at line 339 in the main.js file.
 
-To get a cookie value, log in to the Instagram website on a browser.\
-Open the developer console and navigate to the "Network" tab (or anything that can track requests and responses).\
-Reload the page and view the request information for the main webpage file (www.<!--comment to unlink-->instagram.com).\
+To get a cookie value, log in to the Instagram website on a browser.
+
+Open the developer console and navigate to the "Network" tab (or anything that can track requests and responses).
+
+Reload the page and view the request information for the main webpage file (www<!--comment to unlink-->.instagram.com).
+
 The cookie value should be displayed in the cookie header of the request headers.
 
-To uncomment the section, remove the `/*` at the top of the section and the `*/` at the bottom of the section.\
+To uncomment the section, remove the `/*` at the top of the section and the `*/` at the bottom of the section.
+
 Below is the section which should be uncommented if you get the error:
 ```
 let options = {
