@@ -56,7 +56,7 @@ function getRndInteger(min, max) {
 
 }
 
-// Function to get the current time in ISO format.
+// Function to get the current time in the ISO format.
 function timeNowISO() {
 
 	let timeNow = new Date();
