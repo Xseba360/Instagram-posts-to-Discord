@@ -1,4 +1,5 @@
 // Requiring this allows access to the environment variables of the running node process.
+
 interface IUsernameConfig {
   username: string,
   webhook: Discord.WebhookClientDataIdWithToken
@@ -9,10 +10,8 @@ interface IConfig {
   delay: number
   usernames: IUsernameConfig[]
 }
-
 const config:IConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'))
 
-// import * as importedConfig from './config.json'
 // Requires the node-fetch module.
 import fetch from 'node-fetch'
 
@@ -24,18 +23,15 @@ import chalk from 'chalk'
 // Requires the fs module.
 import * as fs from 'fs'
 
-// if (importedConfig == null || importedConfig.usernames == undefined || !Array.isArray(importedConfig.usernames) || importedConfig.usernames.length < 1) {
 if (config == null || config.usernames == undefined || !Array.isArray(config.usernames) || config.usernames.length < 1) {
   console.error('No config specified. Put your config in config.json file. The config.default.json may be used as a template.')
   process.exit()
-  // @ts-ignore apparently webstorm thinks the process can continue after process.exit() ?
-  return
 }
-// const config = importedConfig as IConfig
 
 // Sets the delay.
 // The delay has to be same for all locations that use this variable
 // or the timing will be incorrect.
+// noinspection JSObjectNullOrUndefined
 const delay = config.delay;
 
 // Sets the Discord embed colour.
@@ -373,6 +369,7 @@ async function main (threadID: string, user: IUsernameConfig) {
 consoleLog('0000', 'Script initialised.');
 
 // Start the main function every x milliseconds.
+// noinspection JSObjectNullOrUndefined
 setInterval(() => {
 
   for (let i = 0; i < config.usernames.length; i++) {
