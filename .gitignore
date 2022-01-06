@@ -1,5 +1,5 @@
-main.js
 /node_modules/
 /node_modules
-.config.jsons
+/config.json
+/main.js
 /main.js.map
