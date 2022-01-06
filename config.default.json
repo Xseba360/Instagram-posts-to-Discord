@@ -1,0 +1,27 @@
+{
+  "embedColor": "5851DB",
+  "delay": 20000,
+  "usernames": [
+    {
+      "username": "xxxxxx",
+      "webhook": {
+        "id": "qwertyASDF012345",
+        "token": "qwertyASDF012345"
+      }
+    },
+    {
+      "username": "yyyyyy",
+      "webhook": {
+        "id": "qwertyASDF012345",
+        "token": "qwertyASDF012345"
+      }
+    },
+    {
+      "username": "zzzzzz",
+      "webhook": {
+        "id": "qwertyASDF012345",
+        "token": "qwertyASDF012345"
+      }
+    }
+  ]
+}

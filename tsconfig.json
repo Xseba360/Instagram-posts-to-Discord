@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "Node",
+    "module": "esnext",
+    "moduleResolution": "node",
     "target": "esnext",
     "lib": ["esnext"],
-    "sourceMap": true
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "removeComments": true
   },
   "exclude": [
     "node_modules"

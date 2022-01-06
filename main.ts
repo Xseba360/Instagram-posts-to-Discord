@@ -1,39 +1,45 @@
 // Requiring this allows access to the environment variables of the running node process.
-import { HexColorString } from 'discord.js'
+interface IUsernameConfig {
+  username: string,
+  webhook: Discord.WebhookClientDataIdWithToken
+}
 
-require("dotenv").config();
+interface IConfig {
+  embedColor: Discord.HexColorString
+  delay: number
+  usernames: IUsernameConfig[]
+}
 
-// Sets the target Instagram username.
-const targetInstagramUsernames = process.env.TARGET_INSTAGRAM_USERNAMES.split(',');
+const config:IConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'))
 
-// Sets the Discord webhook ID.
-const discordWebhook: Discord.WebhookClientDataIdWithToken = {
-  id: process.env.DISCORD_WEBHOOK_ID,
-  token: process.env.DISCORD_WEBHOOK_TOKEN
-};
-
-// Sets the delay.
-// The delay has to be same for all locations that use this variable
-// or the timing will be incorrect.
-const delay = Number(process.env.DELAY);
-
-// Sets the Discord embed colour.
-const discordEmbedColour = process.env.DISCORD_EMBED_COLOUR as HexColorString;
-
+// import * as importedConfig from './config.json'
 // Requires the node-fetch module.
 import fetch from 'node-fetch'
 
 // Requires the discord.js module.
-import Discord = require('discord.js')
-
-// Requires the fs module.
-import fs = require('fs')
+import * as Discord from 'discord.js'
 
 // Requires the chalk module.
 import chalk from 'chalk'
+// Requires the fs module.
+import * as fs from 'fs'
 
-// Create a new webhook client.
-const discordWebhookClient = new Discord.WebhookClient(discordWebhook);
+// if (importedConfig == null || importedConfig.usernames == undefined || !Array.isArray(importedConfig.usernames) || importedConfig.usernames.length < 1) {
+if (config == null || config.usernames == undefined || !Array.isArray(config.usernames) || config.usernames.length < 1) {
+  console.error('No config specified. Put your config in config.json file. The config.default.json may be used as a template.')
+  process.exit()
+  // @ts-ignore apparently webstorm thinks the process can continue after process.exit() ?
+  return
+}
+// const config = importedConfig as IConfig
+
+// Sets the delay.
+// The delay has to be same for all locations that use this variable
+// or the timing will be incorrect.
+const delay = config.delay;
+
+// Sets the Discord embed colour.
+const discordEmbedColour = config.embedColor;
 
 // The database file (just a text file).
 const database = "database.txt";
@@ -139,17 +145,18 @@ function getImageCaption(threadID: string, jsonData: any): string|false {
 }
 
 // Function to send an embed to Discord.
-async function sendEmbed(threadID: string, jsonData: any, username: string) {
+async function sendEmbed(threadID: string, jsonData: any, user: IUsernameConfig) {
 
   try {
+    const discordWebhookClient = new Discord.WebhookClient(user.webhook);
 
     // For more information about embeds, read the discord.js documentation at https://discord.js.org/#/docs/main/stable/class/MessageEmbed.
 
     let color = discordEmbedColour;
-    let author = username;
+    let author = user.username;
     let authorAvatarURL = getAvatarURL(threadID, jsonData);
-    let authorURL = ("https://www.instagram.com/" + username + "/");
-    let title = ("New post by @" + username);
+    let authorURL = ("https://www.instagram.com/" + user.username + "/");
+    let title = ("New post by @" + user.username);
     let url = ("https://www.instagram.com/p/" + getLastPostURL(threadID, jsonData) + "/");
     let caption = getImageCaption(threadID, jsonData);
     let image = getLastImageURL(threadID, jsonData);
@@ -182,7 +189,7 @@ async function sendEmbed(threadID: string, jsonData: any, username: string) {
 
     // Send the embed.
     await discordWebhookClient.send({
-      username: username,
+      username: user.username,
       avatarURL: getAvatarURL(threadID, jsonData),
       embeds: [embed],
     });
@@ -205,7 +212,7 @@ async function logData(threadID: string, oldData: string, newData: string) {
 
 }
 
-async function testData(threadID: string, oldData: string, newData: string, jsonData: any, username: string) {
+async function testData(threadID: string, oldData: string, newData: string, jsonData: any, user: IUsernameConfig) {
 
   // If the recorded old publication URL is the same as the newest retrieved publication URL,
   // it most likely means that there are no new posts.
@@ -220,7 +227,7 @@ async function testData(threadID: string, oldData: string, newData: string, json
     // Record the new publication URL to the database file.
     consoleLog(threadID, chalk.green('New post(s) found.'));
 
-    await sendEmbed(threadID, jsonData, username);
+    await sendEmbed(threadID, jsonData, user);
 
     // Check if file access is okay first.
     fs.access(filepath, fs.constants.R_OK, (err) => {
@@ -257,7 +264,7 @@ async function testData(threadID: string, oldData: string, newData: string, json
 }
 
 // The function to test for new images/posts.
-async function test (threadID: string, jsonData: any, username: string) {
+async function test (threadID: string, jsonData: any, user: IUsernameConfig) {
 
   // This compares the recorded old publication URL in the database file
   // with the newest retrieved publication URL.
@@ -307,14 +314,14 @@ async function test (threadID: string, jsonData: any, username: string) {
   setTimeout(() => {
 
     logData(threadID, oldData, newData);
-    testData(threadID, oldData, newData, jsonData, username);
+    testData(threadID, oldData, newData, jsonData, user);
 
   }, delay);
 
 }
 
 // The main function to test for new images/posts and interact with the Discord webhook if there is/are (a) new post(s).
-async function main (threadID: string, username: string) {
+async function main (threadID: string, user: IUsernameConfig) {
 
   try {
 
@@ -337,12 +344,12 @@ async function main (threadID: string, username: string) {
 
     // Retrieve the data.
     if (!options) {
-      const res = await fetch(`https://www.instagram.com/${username}/?__a=1`)
+      const res = await fetch(`https://www.instagram.com/${user.username}/?__a=1`)
       jsonData = await res.json()
 
     } else {
 
-      const res = await fetch(`https://www.instagram.com/${username}/?__a=1`, options)
+      const res = await fetch(`https://www.instagram.com/${user.username}/?__a=1`, options)
       jsonData = await res.json()
 
     }
@@ -350,7 +357,7 @@ async function main (threadID: string, username: string) {
     // Wait x milliseconds so the data can be retrieved.
     setTimeout(() => {
 
-      test(threadID, jsonData, username);
+      test(threadID, jsonData, user);
 
     }, delay);
 
@@ -368,15 +375,15 @@ consoleLog('0000', 'Script initialised.');
 // Start the main function every x milliseconds.
 setInterval(() => {
 
-  for (let i = 0; i < targetInstagramUsernames.length; i++) {
+  for (let i = 0; i < config.usernames.length; i++) {
     // threadID for debugging.
     let threadID = getRndInteger(1000, 9999).toString();
 
     setTimeout(async () => {
 
-      await main(threadID, targetInstagramUsernames[i]);
+      await main(threadID, config.usernames[i]);
 
     }, shortDelay * i+1);
   }
 
-}, delay * targetInstagramUsernames.length);
+}, delay * config.usernames.length);
