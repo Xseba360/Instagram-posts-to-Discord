@@ -13,7 +13,7 @@ interface IConfig {
 const config:IConfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'))
 
 // Requires the node-fetch module.
-import fetch from 'node-fetch'
+import fetch, { RequestInit } from 'node-fetch'
 
 // Requires the discord.js module.
 import * as Discord from 'discord.js'
@@ -321,25 +321,19 @@ async function main (threadID: string, user: IUsernameConfig) {
 
   try {
 
-    // Use the node-fetch module to retrieve the data.
-
-    let options = false;
-
     // Set the options for retrieval.
     // If you get "FetchError: invalid json response body at https://www.instagram.com/accounts/login/ reason: Unexpected token < in JSON at position 0",
     // uncomment the section below and make sure you provided a cookie value in the .env file.
-    /*
-    options = {
+    const options: RequestInit = {
         headers: {
             "cookie": process.env.COOKIE
         }
     };
-    */
 
     let jsonData;
 
     // Retrieve the data.
-    if (!options) {
+    if (typeof options.headers['cookie'] !== 'string' || options.headers['cookie'] === undefined || options.headers['cookie'].length < 1) {
       const res = await fetch(`https://www.instagram.com/${user.username}/?__a=1`)
       jsonData = await res.json()
 
