@@ -38,10 +38,11 @@ const delay = config.delay;
 const discordEmbedColour = config.embedColor;
 
 // The database file (just a text file).
-const database = "database.txt";
+const databaseName = "database";
 
-// Set the database file path.
-const filepath = (".\\" + database);
+function getFilePath(name: string) {
+  return (".\\" + databaseName + name + '.txt')
+}
 
 // If delay is too small, shortDelay will be even smaller
 // and this will probably not work.
@@ -226,26 +227,26 @@ async function testData(threadID: string, oldData: string, newData: string, json
     await sendEmbed(threadID, jsonData, user);
 
     // Check if file access is okay first.
-    fs.access(filepath, fs.constants.R_OK, (err) => {
+    fs.access(getFilePath(user.username), fs.constants.R_OK, (err) => {
 
       if (err) {
 
         console.error(err);
-        consoleLog(threadID, chalk.red('An error occurred trying to read the file "' + filepath + '".'));
+        consoleLog(threadID, chalk.red('An error occurred trying to read the file "' + getFilePath(user.username) + '".'));
 
       } else {
 
         // Write the new data to the database file.
-        fs.writeFile(filepath, newData, (err) => {
+        fs.writeFile(getFilePath(user.username), newData, (err) => {
 
           if (err) {
 
             console.error(err);
-            consoleLog(threadID, chalk.red('An error occurred trying to write to the file "' + filepath + '".'));
+            consoleLog(threadID, chalk.red('An error occurred trying to write to the file "' + getFilePath(user.username) + '".'));
 
           } else {
 
-            consoleLog(threadID, ('New data written to ' + filepath + '.'));
+            consoleLog(threadID, ('New data written to ' + getFilePath(user.username) + '.'));
 
           }
 
@@ -271,26 +272,26 @@ async function test (threadID: string, jsonData: any, user: IUsernameConfig) {
   setTimeout(() => {
 
     // Check if file access is okay first.
-    fs.access(filepath, fs.constants.R_OK, (err) => {
+    fs.access(getFilePath(user.username), fs.constants.R_OK, (err) => {
 
       if (err) {
 
         console.error(err);
-        consoleLog(threadID, chalk.red('An error occurred trying to read the file "' + filepath + '".'));
+        consoleLog(threadID, chalk.red('An error occurred trying to read the file "' + getFilePath(user.username) + '".'));
 
       } else {
 
         // Read data from the database file.
-        fs.readFile(filepath, "utf8", (err, data) => {
+        fs.readFile(getFilePath(user.username), "utf8", (err, data) => {
 
           if (err) {
 
             console.error(err)
-            consoleLog(threadID, chalk.red('An error occurred trying to read the file "' + filepath + '".'));
+            consoleLog(threadID, chalk.red('An error occurred trying to read the file "' + getFilePath(user.username) + '".'));
 
           } else {
 
-            consoleLog(threadID, ('Data read from ' + filepath + '.'));
+            consoleLog(threadID, ('Data read from ' + getFilePath(user.username) + '.'));
 
             oldData = data;
 
