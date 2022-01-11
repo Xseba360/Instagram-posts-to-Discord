@@ -1,5 +1,7 @@
 // Requiring this allows access to the environment variables of the running node process.
 
+import * as path from 'path'
+
 interface IUsernameConfig {
   username: string,
   webhook: Discord.WebhookClientDataIdWithToken
@@ -41,7 +43,7 @@ const discordEmbedColour = config.embedColor;
 const databaseName = "database";
 
 function getFilePath(name: string) {
-  return (".\\" + databaseName + name + '.txt')
+  return path.join(path.resolve('./'), databaseName + name + '.txt')
 }
 
 // If delay is too small, shortDelay will be even smaller
